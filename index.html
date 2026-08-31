@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>100 — Founder's Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #10130F;
+    --paper: #E9E4D8;
+    --paper-dim: #DCD5C4;
+    --line: #3A3F35;
+    --gold: #B8935A;
+    --gold-dim: #8A6F45;
+    --rust: #8C4A3A;
+    --struck: #55524A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Spectral', serif;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px 40px;
+  }
+
+  .masthead {
+    width: 100%;
+    max-width: 480px;
+    text-align: left;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+
+  .masthead h1 {
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 26px;
+    letter-spacing: 0.3px;
+    color: var(--paper);
+  }
+
+  .masthead p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .stats {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .stat {
+    flex: 1;
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+  }
+
+  .stat .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--paper);
+    line-height: 1;
+  }
+
+  .stat .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--gold-dim);
+    margin-top: 5px;
+    text-transform: lowercase;
+  }
+
+  .grid {
+    width: 100%;
+    max-width: 480px;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 6px;
+    margin-bottom: 26px;
+  }
+
+  .cell {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--paper-dim);
+    border: 1px solid var(--line);
+    background: transparent;
+    user-select: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .cell.locked {
+    color: var(--struck);
+    border-color: #24271F;
+    background: rgba(0,0,0,0.15);
+    cursor: not-allowed;
+  }
+
+  .cell.locked::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 5px;
+    height: 5px;
+    border: 1px solid var(--struck);
+    border-bottom: none;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .cell.locked::before {
+    content: '';
+    position: absolute;
+    top: 6.5px;
+    right: 3px;
+    width: 7px;
+    height: 4.5px;
+    background: var(--struck);
+    border-radius: 1px;
+  }
+
+  .cell.unlocked {
+    color: var(--gold);
+    border-color: var(--gold);
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(184, 147, 90, 0.25);
+  }
+
+  .cell.unlocked:active {
+    background: rgba(184, 147, 90, 0.18);
+  }
+
+  .cell.struck {
+    color: var(--struck);
+    border-color: var(--line);
+    cursor: pointer;
+  }
+
+  .cell.struck::after {
+    content: '';
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 50%;
+    height: 1.5px;
+    background: var(--rust);
+    transform: rotate(-8deg);
+  }
+
+  .actions {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .actions button {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--paper-dim);
+    padding: 9px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+  }
+
+  .actions button:active {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .note {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 26px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.6;
+    color: var(--gold-dim);
+  }
+
+  .loading {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--gold-dim);
+    padding: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading">loading ledger…</div>
+</div>
+
+<script>
+(function () {
+  const TOTAL = 100;
+  const STORAGE_KEY = 'hundred-day-ledger';
+  const app = document.getElementById('app');
+
+  let state = { struck: [], startDate: null };
+  let saveTimer = null;
+
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function dayIndex() {
+    if (!state.startDate) return 1;
+    const start = new Date(state.startDate + 'T00:00:00');
+    const now = new Date();
+    const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+    return Math.min(Math.max(diff, 1), TOTAL);
+  }
+
+  async function load() {
+    try {
+      const result = await window.storage.get(STORAGE_KEY, false);
+      if (result && result.value) {
+        state = JSON.parse(result.value);
+      }
+    } catch (e) {
+      // no existing state
+    }
+    if (!state.startDate) {
+      state.startDate = todayStr();
+      await persist();
+    }
+    render();
+  }
+
+  async function persist() {
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+    } catch (e) {
+      console.error('save failed', e);
+    }
+  }
+
+  function nextRequired() {
+    return state.struck.length + 1;
+  }
+
+  function toggle(n) {
+    const next = nextRequired();
+    if (n === next) {
+      state.struck.push(n);
+    } else if (n === next - 1 && state.struck.length > 0) {
+      // allow undoing only the most recently struck number, to fix mis-taps
+      state.struck.pop();
+    } else {
+      return; // locked — no interaction
+    }
+    render();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(persist, 200);
+  }
+
+  async function resetAll() {
+    if (!confirm('Reset the full 100-day ledger? This clears every mark.')) return;
+    state = { struck: [], startDate: todayStr() };
+    await persist();
+    render();
+  }
+
+  function render() {
+    const today = dayIndex();
+    const struckCount = state.struck.length;
+    const remaining = TOTAL - struckCount;
+    const next = nextRequired();
+
+    let cells = '';
+    for (let n = 1; n <= TOTAL; n++) {
+      const isStruck = state.struck.includes(n);
+      const isUnlocked = n === next && next <= TOTAL;
+      const isLocked = n > next;
+      const cls = isStruck ? 'struck' : isUnlocked ? 'unlocked' : isLocked ? 'locked' : '';
+      cells += `<div class="cell ${cls}" data-n="${n}">${n}</div>`;
+    }
+
+    app.innerHTML = `
+      <div class="masthead">
+        <h1>The 100-Day Ledger</h1>
+        <p>started ${state.startDate} · day ${today} of ${TOTAL}</p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="num">${struckCount}</div>
+          <div class="lbl">marked</div>
+        </div>
+        <div class="stat">
+          <div class="num">${remaining}</div>
+          <div class="lbl">remaining</div>
+        </div>
+        <div class="stat">
+          <div class="num">${next <= TOTAL ? next : '—'}</div>
+          <div class="lbl">next</div>
+        </div>
+      </div>
+      <div class="grid" id="grid">${cells}</div>
+      <div class="actions">
+        <button id="reset-btn">reset ledger</button>
+        <span>unlock numbers one by one</span>
+      </div>
+      <div class="note">
+        Numbers unlock strictly in order, 1 → 100. Locked numbers (marked with a lock) can't be tapped. Only the gold-outlined number is unlocked — strike it to unlock the next. Tap a struck number again to undo it, for mis-taps.
+      </div>
+    `;
+
+    document.getElementById('grid').addEventListener('click', (e) => {
+      const cell = e.target.closest('.cell');
+      if (!cell) return;
+      toggle(parseInt(cell.dataset.n, 10));
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', resetAll);
+  }
+
+  load();
+})();
+</script>
+
+</body>
+</html>
